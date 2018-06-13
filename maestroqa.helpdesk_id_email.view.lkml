@@ -1,5 +1,5 @@
 view: helpdesk_id_email {
-  sql_table_name: maestro.helpdesk_id_email ;;
+  sql_table_name: maestro_qa.maestro_qa.helpdesk_id_email ;;
 
   dimension: email {
     description: "Email address of this helpdesk agent"
@@ -21,7 +21,7 @@ view: helpdesk_id_email {
 
   dimension: row_updated_at {
     description: "UTC time this row was last updated"
-    type: time
+    type: date
     sql: ${TABLE}.row_updated_at ;;
   }
 

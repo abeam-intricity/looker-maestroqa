@@ -1,5 +1,5 @@
 view: question_scores {
-  sql_table_name: maestro.question_scores ;;
+  sql_table_name: maestro_qa.maestro_qa.question_scores ;;
 
   dimension: answer_id {
     description: "ID of the answer this question's score belongs to"
@@ -55,7 +55,7 @@ view: question_scores {
 
   dimension: row_updated_at {
     description: "UTC time this row was last updated"
-    type: time
+    type: date
     sql: ${TABLE}.row_updated_at ;;
   }
 

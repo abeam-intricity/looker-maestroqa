@@ -2,7 +2,7 @@
 # # You'll probably want to replace this with the existing Zendesk block you have.
 # # See the longer discussion in 'helpdesk_integration' documents
 
-connection: "your_connection_here" # Replace with your connection name
+connection: "alooma-snowflake" # Replace with your connection name
 
 include: "zendesk.*.view.lkml" # include all views that end in .zendesk
 
