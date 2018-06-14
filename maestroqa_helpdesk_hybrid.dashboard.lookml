@@ -46,9 +46,9 @@
     - name: number_of_tickets
       title: Total Number of Tickets
       type: single_value
-      model: zendesk
-      explore: zendesk_tickets
-      measures: zendesk_tickets.count
+      model: kustomer
+      explore: dw_cs_d_conversation
+      measures: dw_cs_d_conversation.count
       height: 3
       width: 3
       refresh: 2 hours
@@ -64,20 +64,17 @@
       refresh: 2 hours
 
 
-    - name: tickets_by_day
-      title: Number of tickets by Day of Week
+    - name: number_of_conversations_by_day_of_week
+      title: Number of Conversations by Day of Week
+      model: kustomer
+      explore: dw_cs_d_conversation
       type: looker_column
-      model: zendesk
-      explore: zendesk_tickets
-      dimensions: [zendesk_tickets.created_day_of_week]
-      measures: [zendesk_tickets.count]
-      height: 3
-      width: 6
-      listen:
-        ticket_created_day_of_week: zendesk_tickets.created_day_of_week
-      sorts: [zendesk_tickets.created_day_of_week]
-      limit: '500'
-      column_limit: '50'
+      fields: [dw_cs_f_message.conversation_create_day_of_week, dw_cs_d_conversation.count]
+      filters:
+        dw_cs_f_message.conversation_create_day_of_week: Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday
+      sorts: [dw_cs_f_message.conversation_create_day_of_week]
+      limit: 500
+      column_limit: 50
       query_timezone: America/Los_Angeles
       stacking: ''
       show_value_labels: false
@@ -85,7 +82,7 @@
       legend_position: center
       x_axis_gridlines: false
       y_axis_gridlines: true
-      show_view_names: true
+      show_view_names: false
       limit_displayed_rows: false
       y_axis_combined: true
       show_y_axis_labels: true
@@ -102,6 +99,14 @@
       show_silhouette: false
       totals_color: "#808080"
       x_axis_label_rotation: -30
+      x_axis_reversed: false
+      y_axis_reversed: false
+      x_axis_label: Day of Week
+      y_axes: [{label: "# of Conversations", orientation: left, series: [{id: dw_cs_d_conversation.count,
+              name: Conversation, axisId: dw_cs_d_conversation.count}], showLabels: true,
+          showValues: true, unpinAxis: false, tickDensity: default, tickDensityCustom: 5,
+          type: linear}]
+
 
 
     - name: score_breakdown
@@ -149,26 +154,22 @@
 
     - name: most_active_agents
       title: Most Active Agents
+      model: kustomer
+      explore: dw_cs_f_message
       type: looker_bar
-      model: zendesk
-      explore: zendesk_tickets
-      dimensions: [zendesk_users.name]
-      measures: [zendesk_tickets.count]
-      height: 3
-      width: 6
-      listen:
-        zendesk_tickets_count: zendesk_tickets.count
-      sorts: [zendesk_tickets.count desc]
-      limit: '5'
-      column_limit: '50'
-      query_timezone: America/Los_Angeles
+      fields: [dw_cs_d_agent.agent_full_name, dw_cs_f_message.total_unique_cases]
+      filters:
+        dw_cs_d_agent.agent_full_name: "-NOT APPLICABLE"
+      sorts: [dw_cs_f_message.total_unique_cases desc]
+      limit: 5
+      column_limit: 50
       stacking: ''
       show_value_labels: false
       label_density: 25
       legend_position: center
       x_axis_gridlines: false
       y_axis_gridlines: true
-      show_view_names: true
+      show_view_names: false
       limit_displayed_rows: false
       y_axis_combined: true
       show_y_axis_labels: true
@@ -179,33 +180,47 @@
       show_x_axis_ticks: true
       x_axis_scale: auto
       y_axis_scale_mode: linear
+      x_axis_reversed: false
+      y_axis_reversed: false
       ordering: none
       show_null_labels: false
       show_totals_labels: false
       show_silhouette: false
       totals_color: "#808080"
+      show_row_numbers: true
+      truncate_column_names: false
+      hide_totals: false
+      hide_row_totals: false
+      table_theme: editable
+      enable_conditional_formatting: false
+      conditional_formatting_include_totals: false
+      conditional_formatting_include_nulls: false
+      query_timezone: America/Los_Angeles
       series_types: {}
       y_axis_unpin: true
-      y_axis_labels: ['Agent Name']
-      x_axis_labels: ['# of Assigned tickets']
+      y_axis_labels: [Agent Name]
+      x_axis_labels: ["# of Assigned tickets"]
       y_axis_min: ['1000']
       y_axis_max: ['1150']
+      hide_legend: false
+      y_axes: [{label: '', orientation: bottom, series: [{id: dw_cs_f_message.total_unique_cases,
+              name: Total Unique Cases, axisId: dw_cs_f_message.total_unique_cases}],
+          showLabels: true, showValues: true, maxValue: !!null '', minValue: 0, unpinAxis: true,
+          tickDensity: default, tickDensityCustom: 5, type: linear}]
+
 
 
     - name: least_active_agents
       title: Least Active Agents
+      model: kustomer
+      explore: dw_cs_f_message
       type: looker_bar
-      model: zendesk
-      explore: zendesk_tickets
-      dimensions: [zendesk_users.name]
-      measures: [zendesk_tickets.count_2, zedesk_tickets.count]
-      height: 3
-      width: 6
-      listen:
-        zendesk_tickets_count: zendesk_tickets.count
-      sorts: [zendesk_tickets.count asc]
-      limit: '5'
-      column_limit: '50'
+      fields: [dw_cs_d_agent.agent_full_name, dw_cs_f_message.total_unique_cases]
+      filters:
+        dw_cs_d_agent.agent_full_name: "-NOT APPLICABLE"
+      sorts: [dw_cs_f_message.total_unique_cases asc]
+      limit: 5
+      column_limit: 50
       query_timezone: America/Los_Angeles
       stacking: ''
       show_value_labels: false
@@ -213,7 +228,7 @@
       legend_position: center
       x_axis_gridlines: false
       y_axis_gridlines: true
-      show_view_names: true
+      show_view_names: false
       limit_displayed_rows: false
       y_axis_combined: true
       show_y_axis_labels: true
@@ -231,8 +246,13 @@
       totals_color: "#808080"
       series_types: {}
       y_axis_unpin: true
-      hidden_series: [zendesk_users.count_2]
-      y_axis_labels: ['Agent Name']
-      x_axis_labels: ['# of Assigned tickets']
+      y_axis_labels: [Agent Name]
+      x_axis_labels: ["# of Assigned tickets"]
       y_axis_min: ['1000']
       y_axis_max: ['1150']
+      x_axis_reversed: false
+      y_axis_reversed: false
+      y_axes: [{label: '', orientation: bottom, series: [{id: dw_cs_f_message.total_unique_cases,
+              name: Total Unique Cases, axisId: dw_cs_f_message.total_unique_cases}],
+          showLabels: true, showValues: true, maxValue: !!null '', minValue: 0, unpinAxis: false,
+          tickDensity: default, tickDensityCustom: 5, type: linear}]

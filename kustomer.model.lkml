@@ -4,15 +4,22 @@
 
 connection: "alooma-snowflake" # Replace with your connection name
 
-include: "zendesk.*.view.lkml" # include all views that end in .zendesk
+include: "dw_cs_*.view.lkml" # include all views that end in .zendesk
 
 
-explore: zendesk_tickets {
-  from: zendesk_tickets
-  join:  zendesk_users {
-    from: zendesk_users
+explore: dw_cs_d_conversation {
+  hidden: yes
+  join: dw_cs_f_message {
     relationship: many_to_one
-    sql_on: ${zendesk_tickets.assignee_id} = ${zendesk_users.id} ;;
+    sql_on: ${dw_cs_d_conversation.conversation_key} = ${dw_cs_f_message.conversation_key} ;;
+  }
+}
+
+explore: dw_cs_f_message {
+  hidden: yes
+  join: dw_cs_d_agent {
+    relationship: many_to_one
+    sql_on: ${dw_cs_d_agent.agent_key} = ${dw_cs_f_message.agent_key} ;;
   }
 }
 
