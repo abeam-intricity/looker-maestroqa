@@ -1,5 +1,5 @@
 view: sections {
-  sql_table_name: maestro.sections ;;
+  sql_table_name: maestro_qa.maestro_qa.sections ;;
 
   dimension: section_id {
     description: "Identifier of this section of the rubric template"
@@ -49,7 +49,7 @@ view: sections {
 
   dimension: row_updated_at {
     description: "UTC time this row was last updated"
-    type: time
+    type: date
     sql: ${TABLE}.row_updated_at ;;
   }
 

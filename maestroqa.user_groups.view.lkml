@@ -1,5 +1,5 @@
 view: user_groups {
-  sql_table_name: maestro.user_groups ;;
+  sql_table_name: maestro_qa.maestro_qa.user_groups ;;
 
   dimension: agent_id {
     type: string
@@ -21,7 +21,7 @@ view: user_groups {
 
   dimension: row_updated_at {
     description: "UTC time this row was last updated"
-    type: time
+    type: date
     sql: ${TABLE}.row_updated_at ;;
   }
 

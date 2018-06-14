@@ -2,9 +2,9 @@
 # # You'll probably want to replace this with the existing Desk block you have.
 # # See the longer discussion in 'helpdesk_integration' documents
 
-connection: "your_connection_here" # Replace with your connection name
+connection: "alooma-snowflake" # Replace with your connection name
 
-include: "desk.*.view.lkml" # include all views that start with 'desk.'
+include: "mq_desk.*.view.lkml" # include all views that start with 'desk.'
 
 
 # # Select the views that should be a part of this model,

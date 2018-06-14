@@ -11,7 +11,7 @@ connection: "your_connection_here" # Replace with your connection name
 
 include: "maestroqa.model.lkml"
 include: "zendesk.model.lkml" # comment this out if you don't want use zendesk
-include: "desk.model.lkml" # comment this out if you don't use desk
+include: "mq_desk.model.lkml" # comment this out if you don't use desk
 
 include: "*.dashboard.lookml"  # include all dashboards in this project
 

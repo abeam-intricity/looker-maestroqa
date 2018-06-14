@@ -1,5 +1,5 @@
 view: section_scores {
-  sql_table_name: maestro.section_scores ;;
+  sql_table_name: maestro_qa.maestro_qa.section_scores ;;
 
   dimension: answer_id {
     description: "Identifier of the answer this section-scores belongs to"
@@ -42,7 +42,7 @@ view: section_scores {
 
   dimension: row_updated_at {
     description: "UTC time this row was last updated"
-    type: time
+    type: date
     sql: ${TABLE}.row_updated_at ;;
   }
 

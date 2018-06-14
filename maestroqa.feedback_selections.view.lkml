@@ -1,5 +1,5 @@
 view: feedback_selections {
-  sql_table_name: maestro.feedback_selections ;;
+  sql_table_name: maestro_qa.maestro_qa.feedback_selections ;;
 
   dimension: answer_id {
     description: "ID of the answer this question's score belongs to"
@@ -37,7 +37,7 @@ view: feedback_selections {
 
   dimension: row_updated_at {
     description: "UTC time this row was last updated"
-    type: time
+    type: date
     sql: ${TABLE}.row_updated_at ;;
   }
 

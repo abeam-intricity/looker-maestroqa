@@ -1,5 +1,5 @@
 view: templates {
-  sql_table_name: maestro.templates ;;
+  sql_table_name: maestro_qa.maestro_qa.templates ;;
 
   dimension: template_id {
     description: "Unique identifier for this template"
@@ -48,7 +48,7 @@ view: templates {
 
   dimension: row_updated_at {
     description: "UTC time this row was last updated"
-    type: time
+    type: date
     sql: ${TABLE}.row_updated_at ;;
   }
 

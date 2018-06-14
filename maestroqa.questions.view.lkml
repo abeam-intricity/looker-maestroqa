@@ -1,5 +1,5 @@
 view: questions {
-  sql_table_name: maestro.questions ;;
+  sql_table_name: maestro_qa.maestro_qa.questions ;;
 
   dimension: question_id {
     description: "Identifier of this question"
@@ -61,7 +61,7 @@ view: questions {
 
   dimension: row_updated_at {
     description: "UTC time this row was last updated"
-    type: time
+    type: date
     sql: ${TABLE}.row_updated_at ;;
   }
 

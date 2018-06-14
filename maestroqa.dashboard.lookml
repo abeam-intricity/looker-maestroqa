@@ -5,9 +5,8 @@
 
   filters:
     - name: grade_created_date
-      title: "Grade Creation Date"
+      title: 'Grade Creation Date'
       type: date_filter
-      field: answers.created_date
       default_value: 'last 30 days'
 
   elements:

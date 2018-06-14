@@ -3,7 +3,7 @@
 # # 'helpdesk_integration' (warning: some dev experience probably required)
 
 
-connection: "your_connection_here" # Replace with your connection name
+connection: "alooma-snowflake" # Replace with your connection name
 
 # include all the views that maestroqa uses
 include: "maestroqa.*.view"
