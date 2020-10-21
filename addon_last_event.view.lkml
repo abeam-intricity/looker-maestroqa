@@ -1,7 +1,6 @@
 view: addon_last_event {
   derived_table: {
-    sql: --416,696
-WITH boxy_addon AS (
+    sql: WITH boxy_addon AS (
 
         select
             SO.CUSTOMER_EMAIL,
@@ -66,16 +65,12 @@ WITH boxy_addon AS (
       WHERE EXISTS (SELECT 1 FROM boxy_addon bp WHERE UPPER(po.SKU_NUMBER)=UPPER(bp.Item_Sku) )) a
       WHERE a.rownum =1
  )
- ,
-  prep_data AS
- (
+ , prep_data AS (
 
             SELECT
             ORD1.CUSTOMER_EMAIL,
             ORD1.INCREMENT_ID,
-            CASE WHEN ORD1.BASE_SHIPPING_AMOUNT > 0 THEN 1 ELSE 0 END AS SHIPPING_CHARGE,
             ORD1.Order_Id,
-            ORD1.ORDER_LINE_ITEM_ID,
             BC_ORDER_TYPE,
             ORD1.ECOM_DATE,
             --ECOM_FLAG,
@@ -93,45 +88,34 @@ WITH boxy_addon AS (
             coalesce(i.Item_Category,ord1.Item_Category) as Item_Category,
             coalesce(i.Item_Sub_Category,ord1.Item_Sub_Category) as Item_Sub_Category,
             ORD1.Order_create_timestamp,
-            ORD1.COMPARISON_DAY_OF_EVENT,
+            DATE_TRUNC('MONTH', ORDER_CREATE_TIMESTAMP)::DATE AS ORDER_MONTH,
+            CASE WHEN ECOMMERCE_FLAG_MONTH = 'ADD_ON : 2020-07-01' THEN ORDER_CREATE_TIMESTAMP::DATE >= '2020-07-15' ELSE 'TRUE' END AS EDIT_START_DATE,
+            DENSE_RANK() OVER (PARTITION BY ECOMMERCE_FLAG_MONTH ORDER BY ORDER_CREATE_TIMESTAMP::DATE) AS RANKING,
+            DENSE_RANK() OVER (ORDER BY ORDER_MONTH DESC) AS CURRENT_V_PRIOR,
+            MIN(ORDER_CREATE_TIMESTAMP) OVER (PARTITION BY ECOMMERCE_FLAG_MONTH) AS START_TIME,
+            DATEDIFF('MINUTE', START_TIME, ORDER_CREATE_TIMESTAMP) AS TIME_DIFF,
            -- MIN(INV.COST) AS COST,
            -- MIN(INV.INVENTORY) AS INVENTORY,
            -- min(INV.CATEGORY_INVENTORY) AS CATEGORY_INVENTORY,
            -- min(INV.SUB_CATEGORY_INVENTORY) AS SUB_CATEGORY_INVENTORY,
             SUM(Total_Quantity) AS QTY,
             SUM(Total_Gross_Sales) AS GROSS_SALES,
-            ifnull(SUM(ORD1.DISCOUNT_AMOUNT),0) AS DISCOUNT_AMOUNT,
-            COUNT(DISTINCT Order_Id) AS ORDERS,
-            COUNT(DISTINCT ORDER_LINE_ITEM_ID) AS ORDER_LINE_QTY
-             FROM boxy_addon as ORD1
+            ifnull(SUM(ORD1.DISCOUNT_AMOUNT),0) AS DISCOUNT_AMOUNT
+            FROM boxy_addon as ORD1
             LEFT JOIN item_type i
             ON ORD1.ITEM_SKU=i.ITEM_SKU
-            GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
-   )
-   , TOTAL AS(
-          SELECT p.*,
-         so.customer_id
-         FROM prep_data p
-         LEFT JOIN
-         (select DISTINCT entity_id,CUSTOMER_ID  from fivetran.fivetran_magento.sales_order where entity_id IN (SELECT order_id FROM boxy_addon)) so
-         ON so.entity_id=p.Order_Id
-
-    )
-    , EVENT_COMPARISON AS (
-    SELECT *
-         , DATE_TRUNC('MONTH', ORDER_CREATE_TIMESTAMP)::DATE AS ORDER_MONTH
-         , CASE WHEN ECOMMERCE_FLAG_MONTH = 'ADD_ON : 2020-07-01' THEN ORDER_CREATE_TIMESTAMP::DATE >= '2020-07-15' ELSE 'TRUE' END AS EDIT_START_DATE
-         , DENSE_RANK() OVER (PARTITION BY ECOMMERCE_FLAG_MONTH ORDER BY ORDER_CREATE_TIMESTAMP::DATE) AS RANKING
-         , DENSE_RANK() OVER (ORDER BY ORDER_MONTH DESC) AS CURRENT_V_PRIOR
-    FROM TOTAL
-      WHERE EDIT_START_DATE = 'TRUE'
-    ORDER BY ORDER_CREATE_TIMESTAMP
-    )
-
-SELECT ORDER_MONTH, RANKING, CURRENT_V_PRIOR, ECOMMERCE_FLAG_MONTH, GROSS_SALES, QTY AS GROSS_SALES
-FROM EVENT_COMPARISON
-         WHERE ECOMMERCE_FLAG IS NOT NULL AND CURRENT_V_PRIOR IN (1,2)
-         ORDER BY ORDER_CREATE_TIMESTAMP::DATE DESC
+            WHERE ECOMMERCE_FLAG = 'add_on'
+            GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19
+   )--, TOTAL AS (
+   SELECT * FROM (
+   SELECT *, MAX(CASE WHEN DATE_TRUNC('MONTH',ORDER_CREATE_TIMESTAMP)::DATE = DATE_TRUNC('MONTH',CURRENT_DATE)
+              THEN DATEDIFF('MINUTE', START_TIME, ORDER_CREATE_TIMESTAMP) END) OVER() AS MAX_CURRENT_MONTH
+   FROM PREP_DATA
+   WHERE CURRENT_V_PRIOR IN (1,2) AND ECOMMERCE_FLAG = 'add_on'
+   GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26
+   ORDER BY ORDER_CREATE_TIMESTAMP DESC
+     )
+     WHERE TIME_DIFF <= MAX_CURRENT_MONTH
  ;;
   }
 
